@@ -37,7 +37,7 @@ jobs:
         run: |
           git clone https://github.com/pretextbook/pretext-cli.git
           cd pretext-cli
-          git checkout $CLI_VERSION
+        #git checkout $CLI_VERSION
 
       # Setup poetry
       - name: Install poetry 1.8.4
