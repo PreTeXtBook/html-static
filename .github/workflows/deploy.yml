@@ -61,8 +61,8 @@ jobs:
       - name: Commit dist folder
         run: |
           git add dist
-          git commit -m "Update css and js for CDN"
-          git push
+          git commit -m "Update css and js for CDN" || echo "No new commit needed"
+          git push origin main || echo "All done"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
