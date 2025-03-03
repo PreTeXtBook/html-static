@@ -49,7 +49,7 @@ jobs:
       - name: Install CLI
         run: |
           cd pretext-cli
-          poetry install --all-extras
+          poetry install
           poetry run python scripts/copy_cdn_files.py ../dist
 
       - name: setup git config
