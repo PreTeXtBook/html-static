@@ -1,0 +1,19 @@
+name: deploy
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # - cron: "0 0 * * 0"
+  
+  repository_dispatch:
+    types: [pretext-publish]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
