@@ -1,10 +1,10 @@
 name: deploy
 
 on:
-  schedule:
+  #schedule:
     # * is a special character in YAML so you have to quote this string
     # - cron: "0 0 * * 0"
-  
+
   repository_dispatch:
     types: [pretext-publish]
 
@@ -14,6 +14,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Sets up python3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Discover latest CLI version
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/PreTeXtBook/pretext-cli/releases/latest | jq -r .tag_name)
+          echo "CLI_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+
+      - name: Get latest static version
+        run: |
+          git fetch --tags
+          git tag -l | sort -V | tail -n 1
+          echo "THIS_VERSION=$(git tag -l | sort -V | tail -n 1)" >> $GITHUB_ENV
+
+      - name: Fetch CLI repository
+        run: |
+          git clone https://github.com/pretextbook/pretext-cli.git
+          cd pretext-cli
+          git checkout $CLI_VERSION
+
+      - name: Install CLI
+        run: |
+          cd pretext-cli
+          poetry install --all-extras
+          poetry run python scripts/copy_cdn_files.py ../dist
+
+      - name: Commit dist folder
+        run: |
+          git add dist
+          git commit -m "Update dist folder"
+          git push
 
