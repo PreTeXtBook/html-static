@@ -39,15 +39,30 @@ jobs:
           cd pretext-cli
           git checkout $CLI_VERSION
 
+      # Setup poetry
+      - name: Install poetry 1.8.4
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry==1.8.4
+
       - name: Install CLI
         run: |
           cd pretext-cli
           poetry install --all-extras
           poetry run python scripts/copy_cdn_files.py ../dist
 
+      - name: setup git config
+        run: |
+          # setup the username and email.
+          git config user.name "${{ github.actor }} via GitHub Actions"
+          git config user.email "${{ github.actor }}@github_actions.no_reply"
+
       - name: Commit dist folder
         run: |
           git add dist
           git commit -m "Update dist folder"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
