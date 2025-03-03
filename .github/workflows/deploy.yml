@@ -61,8 +61,26 @@ jobs:
       - name: Commit dist folder
         run: |
           git add dist
-          git commit -m "Update dist folder"
+          git commit -m "Update css and js for CDN"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+        # Create a new tag at current commit and push it
+      - name: Create tag
+        run: |
+          git tag -a $CLI_VERSION -m "Update css and js for CDN"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "${{ env.CLI_VERSION }}"
+          release_name: "${{ env.CLI_VERSION }}"
+          draft: false
+          prerelease: false
