@@ -296,6 +296,24 @@ body.pretext > a.assistive:focus {
 .ptx-navbar .pretext .navbar .dropdown {
   height: 34px;
 }
+.ptx-navbar .embed-popup {
+  padding: 10px;
+  background-color: var(--navbar-background);
+  position: absolute;
+  margin-top: 36px;
+  border: 1px solid var(--page-border-color);
+  border-radius: 3px;
+  box-shadow: 0 0 5px var(--primary-color-gray-80);
+}
+.ptx-navbar .embed-popup .embed-code-container {
+  width: "100%";
+  padding: 5px;
+}
+.ptx-navbar .embed-popup .embed-code-container .embed-code-textbox {
+  width: 100%;
+  padding: 10px;
+  height: 5em;
+}
 .ptx-navbar .treebuttons > * {
   display: flex;
   align-items: center;
@@ -308,7 +326,7 @@ body.pretext > a.assistive:focus {
 .ptx-navbar :is(.index-button) .icon {
   display: none;
 }
-.ptx-navbar :is(.runestone-profile, .activecode-toggle, .searchbutton, .calculator-toggle, .light-dark-button) .name {
+.ptx-navbar :is(.runestone-profile, .activecode-toggle, .searchbutton, .calculator-toggle, .light-dark-button, .embed-button) .name {
   display: none;
 }
 .ptx-navbar .index-button {
@@ -387,11 +405,15 @@ body.pretext > a.assistive:focus {
   .ptx-navbar .index-button {
     display: none;
   }
+  .ptx-navbar .embed-popup {
+    margin-top: unset;
+    bottom: 36px;
+  }
   .ptx-navbar .dropdown-content {
     top: unset;
     bottom: 36px;
   }
-  .ptx-navbar :is(.toc-toggle, .previous-button, .up-button, .next-button, .calculator-toggle, .index-button) .name {
+  .ptx-navbar :is(.toc-toggle, .previous-button, .up-button, .next-button, .calculator-toggle, .index-button, .embed-button) .name {
     display: none;
   }
 }
@@ -2902,13 +2924,6 @@ article.theorem-like .emphasis {
   margin-left: -0.18em;
   margin-right: -0.12em;
 }
-.print-button {
-  position: relative;
-  right: 2px;
-  background-color: LightGreen;
-  z-index: 1;
-  float: right;
-}
 @media print {
   .pretext .ptx-masthead,
   .pretext .ptx-navbar,
@@ -2917,93 +2932,13 @@ article.theorem-like .emphasis {
   .pretext .ptx-page-footer,
   .pretext .ptx-main > div.ptx-content-footer {
     display: none;
-    border: none;
   }
-  .pretext .ptx-page main.ptx-main {
-    margin-left: 0;
-    left: auto;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-  }
-  .pretext .ptx-page .ptx-main {
-    margin-top: 0;
-  }
-  .pretext .ptx-page .ptx-main .ptx-contentsection {
-    margin-top: 1em;
-  }
-  .pretext .ptx-page .ptx-main .ptx-contentsection .heading {
-    margin-top: 0;
-  }
-  .pretext a[href]::after {
-    content: "";
-  }
-  .print-button {
-    display: none;
-  }
-}
-@media print {
-  body.standalone.worksheet .ptx-page > .ptx-main {
-    width: 820px;
-    max-width: 820px;
-    font-size: 12.5px;
-  }
-  body.standalone.worksheet {
-    margin: 0;
-  }
-  body.standalone section.worksheet {
-    border: none;
-  }
-  body.standalone.worksheet .ptx-masthead,
-  body.standalone.worksheet .ptx-page-footer {
-    display: none;
-  }
-  body.standalone.worksheet.has-sidebar-left.mathbook-loaded .ptx-page .ptx-main {
-    margin: 0;
-  }
-  body.standalone.worksheet .ptx-page > .ptx-main {
-    margin: 0;
-  }
-  body.standalone.worksheet section.onepage {
-    max-height: 100%;
-    max-width: 100%;
-    overflow: hidden;
-    page-break-after: always;
-    border: none;
-    page-break-inside: avoid;
-  }
-  body.standalone.worksheet .onepage.lastpage {
-    margin-bottom: -2em;
-    page-break-after: auto;
-  }
-  body.standalone.worksheet.a4 .onepage {
-  }
-  body.standalone.worksheet .onepage div.workspace,
-  body.standalone.worksheet .onepage div.workspace.squashed.tight {
+  .pretext .ptx-main .ptx-content {
+    margin-left: auto;
+    margin-right: auto;
     border: none;
     padding: 0;
-    background: none !important;
   }
-  body.standalone.worksheet a {
-    color: black;
-  }
-  body.standalone.worksheet .ptx-page .ptx-main {
-    padding: 0;
-  }
-  body.standalone.worksheet.mathbook-loaded .ptx-page .ptx-main .ptx-contentsection.onepage {
-    padding-bottom: 20px;
-  }
-  @page {
-    margin: 0;
-  }
-}
-section.worksheet > .heading > .codenumber {
-  display: inline-block;
-  vertical-align: top;
-}
-section.worksheet > .heading > .title {
-  display: inline-block;
-  max-width: 70%;
 }
 .heading .print-links {
   display: inline-block;
@@ -3011,26 +2946,6 @@ section.worksheet > .heading > .title {
   vertical-align: top;
   width: 19%;
   text-align: right;
-}
-.standalone .heading .print-links {
-  display: none;
-}
-.standalone.worksheet .previous-button,
-.standalone.worksheet .up-button,
-.standalone.worksheet .next-button {
-  display: none;
-}
-.standalone.worksheet .ptx-navbar .toc-toggle {
-  display: none;
-}
-.standalone.worksheet [data-knowl]:hover,
-.standalone.worksheet [data-knowl]:active,
-.standalone.worksheet [data-knowl].active {
-  background: none;
-  color: black;
-}
-.standalone.worksheet [data-knowl]::after {
-  border: none;
 }
 .heading .print-links > a {
   font-family: var(--font-body);
@@ -3047,6 +2962,16 @@ section.worksheet > .heading > .title {
 }
 .heading .print-links > a + a {
   margin-left: 0.25em;
+}
+.print-button {
+  position: relative;
+  right: 2px;
+  background-color: LightGreen;
+  z-index: 1;
+  float: right;
+}
+.standalone.worksheet .print-links {
+  display: none;
 }
 body.standalone.worksheet .onepage > .heading {
   margin-top: 0;
@@ -3190,6 +3115,15 @@ body.standalone.worksheet section.worksheet > .conclusion {
 }
 body.standalone.worksheet section.worksheet > .heading + .para {
   display: inline;
+}
+.standalone.worksheet [data-knowl]:hover,
+.standalone.worksheet [data-knowl]:active,
+.standalone.worksheet [data-knowl].active {
+  background: none;
+  color: black;
+}
+.standalone.worksheet [data-knowl]::after {
+  border: none;
 }
 .pretext .searchwrapper {
   max-width: 900px;
@@ -3395,6 +3329,10 @@ body.standalone.worksheet section.worksheet > .heading + .para {
 }
 .runestone.datafile + .program {
   margin-top: 0;
+}
+ul[data-component=timedAssessment] {
+  margin: 0;
+  padding: 0;
 }
 :root.dark-mode .ptx-runestone-container code[class*=language-],
 :root.dark-mode .ptx-runestone-container pre[class*=language-] {
@@ -3630,16 +3568,16 @@ label.incorrect .feedback {
   min-width: 100%;
   margin-left: auto;
 }
-:is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
+:is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
   width: calc(100cqw - 96px);
   max-width: unset;
   margin-left: calc(-0.5 * (100cqw - 821px));
 }
-:is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) :is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
+:is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) :is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
   width: 100%;
   margin-left: auto;
 }
-:is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content) .ptx-runestone-container:has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
+:is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content) .ptx-runestone-container:has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
   width: 100%;
   margin-left: 0;
 }
@@ -3648,16 +3586,22 @@ label.incorrect .feedback {
     width: 100cqw;
     margin-left: calc(-0.5 * (100cqw - 100%));
   }
-  :is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
+  :is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content):has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
     width: 100cqw;
     margin-left: calc(-0.5 * (100cqw - 100%));
   }
-  :is(.theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content) .ptx-runestone-container:has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
+  :is(.timedAssessment, .theorem-like, .definition-like, .example-like, .exercise-like, .project-like, .remark-like, .openproblem-like, .openproblems-like, .computation-like, .knowl__content) .ptx-runestone-container:has(.ac_section, .codelens, .parsons_section, .hparsons_section, .datafile, .contains-wide) {
     width: calc(100% + 10px);
     margin-left: -5px;
   }
 }
 .runestone.ac_section > div > div > *:not(.ac_code_div):not(.ac_output):not(.codelens):not(.ac_actions) {
+  max-width: 725px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hparsons_section .hp_question,
+.hparsons_section .hp_feedback {
   max-width: 725px;
   margin-left: auto;
   margin-right: auto;

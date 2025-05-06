@@ -1010,8 +1010,11 @@ xxxxxx[data-ruler=sunriseunderline] .onelineX:hover + .onelineX {
 .ptx-content figcaption code.code-inline {
   white-space: pre;
 }
-.ptx-content figure > figcaption:first-child {
-  margin-top: 1.5em;
+.ptx-content figure.figure > figcaption {
+  margin-top: 1em;
+}
+.ptx-content figure.listing > figcaption + * {
+  margin-top: 0.5em;
 }
 .ptx-content figcaption + .named-list-content {
   margin-top: 0.6em;
@@ -2594,6 +2597,9 @@ a.mjx-svg-href {
 .ptx-content figure,
 .ptx-content .image-box {
   margin-top: 0.5em;
+}
+.ptx-content figure.listing {
+  margin-top: 1em;
 }
 .ptx-content figure .image-box {
   margin-top: 0;
@@ -5221,11 +5227,11 @@ summary.knowl__link {
 .ptx-runestone-container .hparsons_section .hp_question {
   max-width: var(--content-width);
 }
-.matching_section > div > div {
+.codepart_section > div > div {
   font-size: 1rem;
   clear: both;
 }
-.matching_section > div > div:first-of-type {
+.codepart_section > div > div:first-of-type {
   font-size: var(--content-font-size);
 }
 @media screen and (max-width: 600px) {
