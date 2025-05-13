@@ -1743,6 +1743,9 @@ body.standalone.worksheet section.worksheet > .heading + .para {
   opacity: 0.4;
   cursor: not-allowed;
 }
+.searchbox .closesearchresults.hidden {
+  display: none;
+}
 .searchbox .closesearchresults.open {
   color: var(--button-hover-text-color);
   background-color: var(--button-hover-background);
@@ -1992,6 +1995,9 @@ label.incorrect .feedback {
   opacity: 0.4;
   cursor: not-allowed;
 }
+.ptx-content .webwork-button.hidden {
+  display: none;
+}
 .ptx-content .webwork-button.open {
   color: var(--button-hover-text-color);
   background-color: var(--button-hover-background);
@@ -2109,6 +2115,9 @@ body.pretext {
   margin-left: auto;
   margin-right: auto;
 }
+.worksheet .ptx-main .ptx-content {
+  max-width: 960px;
+}
 .ptx-page {
   max-width: 1480px;
   margin-left: auto;
@@ -2180,6 +2189,9 @@ body.pretext > a.assistive:focus {
 .ptx-content-footer .button.disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+.ptx-content-footer .button.hidden {
+  display: none;
 }
 .ptx-content-footer .button.open {
   color: var(--button-hover-text-color);
@@ -2339,6 +2351,9 @@ body.pretext > a.assistive:focus {
 .ptx-navbar .button.disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+.ptx-navbar .button.hidden {
+  display: none;
 }
 .ptx-navbar .button.open {
   color: var(--button-hover-text-color);
@@ -2776,6 +2791,9 @@ body.pretext > a.assistive:focus {
 .ptx-page-footer .feedback-link.disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+.ptx-page-footer .feedback-link.hidden {
+  display: none;
 }
 .ptx-page-footer .feedback-link.open {
   color: var(--button-hover-text-color);
