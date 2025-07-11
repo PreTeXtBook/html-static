@@ -1979,6 +1979,7 @@ a[href^="mailto:"] {
 }
 .tabular-box {
   margin-top: 0.5em;
+  overflow-x: auto;
 }
 .frontmatter > .heading {
   display: block;
@@ -2887,6 +2888,9 @@ article.theorem-like .emphasis {
 .code-display {
   overflow-x: auto;
 }
+.booktitle {
+  font-style: oblique;
+}
 .latex-logo {
   font-family:
     "PT Serif",
@@ -2925,11 +2929,19 @@ article.theorem-like .emphasis {
     padding: 0;
     margin: 0;
   }
-  .ptx-sagecell {
+  .ptx-sagecell,
+  .tabular,
+  .table-like,
+  .figure-like,
+  .exercise-like {
     break-inside: avoid;
   }
   .heading {
     break-after: avoid;
+  }
+  .code-inline {
+    border: unset;
+    background: unset;
   }
   @page {
     margin: 0.75in 0.75in 0.75in 0.75in;
@@ -3461,6 +3473,16 @@ section > h3.heading {
     --max-width: calc(min((100cqw - 2 * 48px), 900px));
     min-width: 100%;
     width: var(--max-width);
+    max-width: var(--max-width);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+@container ptx-main (width > 696px) {
+  .tabular-box {
+    --max-width: calc(min((100cqw - 2 * 48px), 900px));
+    min-width: 100%;
+    width: fit-content;
     max-width: var(--max-width);
     overflow-x: auto;
     overflow-y: hidden;
