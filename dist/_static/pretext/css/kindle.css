@@ -891,6 +891,9 @@ img.contained {
 .image-archive {
   margin: 0.75em auto 0;
   font-family: var(--font-monospace);
+  justify-content: center;
+  display: flex;
+  gap: 0.5em;
 }
 .image-box > img:not(.mag_popup) {
   cursor: zoom-in;
@@ -951,7 +954,7 @@ figure.table-like .list {
 }
 .poem {
   display: table;
-  margin: 1.5em auto 0;
+  margin: 0 auto;
   width: auto;
   max-width: 90%;
 }
