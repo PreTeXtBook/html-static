@@ -1456,13 +1456,13 @@ summary.knowl__link {
 .proof > .heading:first-child:after {
   content: "\2009";
 }
-.proof > .heading:first-child + .para {
+.proof > .heading:first-child + :is(.para, .para.logical, .introduction) {
   display: inline;
 }
-.proof > .heading:first-child + .introduction {
+.proof > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child {
   display: inline;
 }
-.proof > .heading:first-child + .introduction > .para:first-child {
+.proof > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child {
   display: inline;
 }
 .solution-like .heading {
@@ -1638,44 +1638,45 @@ summary.knowl__link {
   display: none;
 }
 .exercises .exercise-like > .heading:first-child,
+.worksheet .exercise-like > .heading:first-child,
 .task > .heading:first-child {
   display: inline;
   line-height: initial;
   border-bottom: 0;
 }
 .exercises .exercise-like > .heading:first-child:after,
+.worksheet .exercise-like > .heading:first-child:after,
 .task > .heading:first-child:after {
   content: "\2009";
 }
-.exercises .exercise-like > .heading:first-child + .para,
-.task > .heading:first-child + .para {
+.exercises .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction),
+.worksheet .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction),
+.task > .heading:first-child + :is(.para, .para.logical, .introduction) {
   display: inline;
 }
-.exercises .exercise-like > .heading:first-child + .introduction,
-.task > .heading:first-child + .introduction {
+.exercises .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child,
+.worksheet .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child,
+.task > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child {
   display: inline;
 }
-.exercises .exercise-like > .heading:first-child + .introduction > .para:first-child,
-.task > .heading:first-child + .introduction > .para:first-child {
+.exercises .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child,
+.worksheet .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child,
+.task > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child {
   display: inline;
 }
 * {
   box-sizing: border-box;
 }
-section > *:not(:first-child) {
-  margin-top: 1.5em;
-}
-article > *:not(:first-child):has(.heading) {
-  margin-top: 1.5em;
-}
-article > *:not(:first-child) {
-  margin-top: 1.5em;
-}
-.knowl__content > *:not(:first-child) {
-  margin-top: 1.5em;
-}
-:is(section, article, .knowl__content) > .para + .para {
-  margin-top: 1em;
+@layer spacing {
+  :is(section, article, .knowl__content) > *:not(:first-child) {
+    margin-top: 1.5em;
+  }
+  :is(section, article, .knowl__content) > .para + .para {
+    margin-top: 1em;
+  }
+  .ptx-content :is(ul, td, li, dd, .blockquote, .sbspanel, .para.logical) > *:not(:first-child) {
+    margin-top: 0.5em;
+  }
 }
 ol.no-marker,
 ul.no-marker,
