@@ -468,7 +468,8 @@ a[href^="mailto:"] {
 }
 .ptx-content tr.header-vertical th {
   writing-mode: vertical-rl;
-  padding-left: 2em;
+  transform: rotate(180deg);
+  padding-top: 5px;
 }
 .ptx-content .center table {
   text-align: center;
@@ -1824,6 +1825,16 @@ ul[data-component=timedAssessment] {
   margin-right: auto;
   display: block;
 }
+.interactive__instructions {
+  max-width: var(--base-content-width);
+}
+.standalone-page .interactive-iframe-container {
+  margin-left: auto;
+  margin-right: auto;
+}
+.standalone-page .interactive__instructions {
+  margin: 5px auto 20px;
+}
 .interactive-iframe-container__opener {
   display: block;
   margin-right: 5px;
@@ -2184,6 +2195,9 @@ body.pretext > a.assistive:focus {
 }
 .ptx-content-footer .button .icon {
   margin: 0 -7px;
+}
+body.standalone-page .ptx-page {
+  max-width: 1600px;
 }
 .ptx-masthead {
   position: relative;
@@ -2995,6 +3009,20 @@ body.pretext > a.assistive:focus {
   color: var(--tocitem-highlight-text-color);
   background-color: var(--tocitem-highlight-background);
   border-color: var(--tocitem-highlight-border-color);
+}
+.standalone-page {
+  margin: 0;
+  padding: 0;
+}
+.standalone-page .ptx-page {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.standalone-page .ptx-main {
+  margin-right: auto;
+  margin-left: auto;
+  box-shadow: none;
+  max-width: 100%;
 }
 .ptx-toc.focused .toc-item > .toc-title-box > .toc-expander > .icon {
   font-size: 30px;
