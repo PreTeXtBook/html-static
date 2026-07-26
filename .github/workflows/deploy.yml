@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Sets up python3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v7
         with:
           python-version: 3.12
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Discover latest CLI version
         run: |
@@ -39,18 +39,14 @@ jobs:
           cd pretext-cli
         #git checkout $CLI_VERSION
 
-      # Setup poetry
-      - name: Install poetry 1.8.4
-        run: |
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry==1.8.4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Install CLI
         run: |
           cd pretext-cli
-          poetry install
-          poetry run python scripts/copy_cdn_files.py ../dist
+          uv sync
+          uv run python scripts/copy_cdn_files.py ../dist
 
       - name: setup git config
         run: |
