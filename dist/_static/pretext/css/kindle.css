@@ -8,10 +8,10 @@
   --content-line-height: 1.35;
 }
 @layer spacing {
-  :is(section, article, .knowl__content, .introduction, .conclusion) > *:not(:first-child) {
+  :is(section, article, .knowl__content, .introduction, .conclusion, .headnote) > *:not(:first-child) {
     margin-top: 1.5em;
   }
-  :is(section, article, .knowl__content, .introduction, .conclusion) > .para + .para {
+  :is(section, article, .knowl__content, .introduction, .conclusion, .headnote) > .para + .para {
     margin-top: 1em;
   }
   .ptx-content :is(ul, td, li, dd, .blockquote, .sbspanel, .para.logical) > *:not(:first-child) {
@@ -495,6 +495,15 @@ a[href^="mailto:"] {
 .tabular-box.natural-width table {
   margin-left: auto;
   margin-right: auto;
+}
+.tablenotes {
+  margin: 0.5em 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 80%;
+}
+.tablenotes .tablenote {
+  margin-top: 0;
 }
 table.notation-list tr th {
   text-align: left;
