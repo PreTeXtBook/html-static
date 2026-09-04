@@ -1361,6 +1361,28 @@ body.pretext.ptx-embedded .ptx-navbar .nav-other-controls > .button {
 .exercise-like > *:is(.solutions) {
   margin-top: 0.5em;
 }
+.exercisegroup > .heading:first-child {
+  display: inline;
+  line-height: initial;
+  border-bottom: 0;
+}
+.exercisegroup > .heading:first-child:after {
+  content: "\2009";
+}
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) {
+  display: inline;
+}
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .autopermalink {
+  display: none;
+}
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child,
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child {
+  display: inline;
+}
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child > .autopermalink,
+.exercisegroup > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child > .autopermalink {
+  display: none;
+}
 .exercisegroup .exercise-like {
   margin-top: 1em;
 }
@@ -1368,13 +1390,6 @@ body.pretext.ptx-embedded .ptx-navbar .nav-other-controls > .button {
   font-size: 1.1em;
   line-height: 1.05em;
   margin-top: 0.75em;
-  display: inline;
-}
-.exercisegroup > .heading + .introduction {
-  display: inline;
-}
-.exercisegroup > .heading + .introduction > .para:first-child {
-  display: inline;
 }
 .exercisegroup .exercisegroup-exercises {
   margin-top: 1em;
@@ -1532,20 +1547,22 @@ section.solutions section > h6.heading {
 .discussion-like > .heading:first-child:after {
   content: "\2009";
 }
-.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction) {
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) {
   display: inline;
 }
-.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child {
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .autopermalink {
+  display: none;
+}
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child,
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child {
   display: inline;
 }
-.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child {
-  display: inline;
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child > .autopermalink,
+.discussion-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child > .autopermalink {
+  display: none;
 }
 .discussion-like > .heading ::after {
   content: "\2009";
-}
-.discussion-like > .heading + .para {
-  display: inline;
 }
 .discussion-like > .heading .space,
 .discussion-like > .heading .codenumber,
@@ -1617,6 +1634,12 @@ summary.knowl__link {
   background-color: var(--remark-like-body-background);
   border-radius: 4px;
 }
+.remark-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (4px + 2em));
+}
+.remark-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (19px + 2em));
+}
 .remark-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   margin-top: 0;
 }
@@ -1641,6 +1664,14 @@ summary.knowl__link {
   padding: 20px;
   padding-top: calc(20px + 0.25ex);
   margin-top: 2.5em !important;
+}
+.ptx-content:not(:has(> .worksheet)) .conclusion:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > .autopermalink,
+.ptx-content:not(:has(> .worksheet)) .goal-like:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (3px + 2em));
+}
+.ptx-content:not(:has(> .worksheet)) .conclusion:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > * > .autopermalink,
+.ptx-content:not(:has(> .worksheet)) .goal-like:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (23px + 2em));
 }
 .ptx-content:not(:has(> .worksheet)) .conclusion:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > .heading:first-child,
 .ptx-content:not(:has(> .worksheet)) .goal-like:not(.ptx-runestone-container *):not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
@@ -1671,6 +1702,12 @@ summary.knowl__link {
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
 }
+.theorem-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.theorem-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
+}
 .theorem-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--theorem-like-border-color);
   display: inline-block;
@@ -1696,6 +1733,12 @@ summary.knowl__link {
   background-color: var(--content-background-background);
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
+}
+.definition-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.definition-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
 }
 .definition-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--definition-like-border-color);
@@ -1723,6 +1766,12 @@ summary.knowl__link {
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
 }
+.example-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.example-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
+}
 .example-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--example-like-border-color);
   display: inline-block;
@@ -1748,6 +1797,12 @@ summary.knowl__link {
   background-color: var(--content-background-background);
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
+}
+.project-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.project-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
 }
 .project-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--project-like-border-color);
@@ -1775,6 +1830,12 @@ summary.knowl__link {
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
 }
+.computation-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.computation-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
+}
 .computation-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--computation-like-border-color);
   display: inline-block;
@@ -1801,6 +1862,12 @@ summary.knowl__link {
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
 }
+.proof-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.proof-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
+}
 .proof-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--proof-like-border-color);
   display: inline-block;
@@ -1826,6 +1893,12 @@ summary.knowl__link {
   background-color: var(--content-background-background);
   padding: 0 0px 12px 12px;
   border-bottom-left-radius: 2px;
+}
+.ptx-content:not(:has(> .worksheet)) .exercise-like:not(.knowl__content, .born-hidden-knowl) > .autopermalink {
+  left: calc(-1 * (1px + 2em));
+}
+.ptx-content:not(:has(> .worksheet)) .exercise-like:not(.knowl__content, .born-hidden-knowl) > * > .autopermalink {
+  left: calc(-1 * (13px + 2em));
 }
 .ptx-content:not(:has(> .worksheet)) .exercise-like:not(.knowl__content, .born-hidden-knowl) > .heading:first-child {
   background-color: var(--exercise-like-border-color);
@@ -1854,14 +1927,19 @@ summary.knowl__link {
 .ptx-content:has(> .worksheet) .exercise-like > .heading:first-child:after {
   content: "\2009";
 }
-.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) {
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) {
   display: inline;
 }
-.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para:first-child {
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .autopermalink {
+  display: none;
+}
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child,
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child {
   display: inline;
 }
-.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction) > .para.logical:first-child > .para:first-child {
-  display: inline;
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para:first-child > .autopermalink,
+.ptx-content:has(> .worksheet) .exercise-like > .heading:first-child + :is(.para, .para.logical, .introduction):nth-child(2) > .para.logical:first-child > .para:first-child > .autopermalink {
+  display: none;
 }
 * {
   box-sizing: border-box;
@@ -4109,48 +4187,12 @@ li > .autopermalink {
 .exercises > .autopermalink {
   top: 1.5ex;
 }
-.assemblage-like > .para > .autopermalink,
-.example-like > .para > .autopermalink,
-.example-like > .exercise-like > .autopermalink,
-.project-like > .para > .autopermalink,
-.project-like > .exercise-like > .autopermalink,
-.project-like > .exercise-like > .introduction > .para > .autopermalink,
-.project-like > .exercise-like > .conclusion > .para > .autopermalink,
-.remark-like > .para > .autopermalink {
-  left: -2.9em;
-}
-.axiom-like > .para:first-of-type > .autopermalink,
-.example-like > .para:first-of-type > .autopermalink,
-.exercise-like > .para:first-of-type > .autopermalink,
-.solution-like > .para:first-of-type > .autopermalink,
-.assemblage-like > .para:first-of-type > .autopermalink,
-.definition-like > .para:first-of-type > .autopermalink,
-.remark-like > .para:first-of-type > .autopermalink,
-.project-like > .para:first-of-type > .autopermalink,
-.openproblem-like > .para:first-of-type > .autopermalink,
-.computation-like > .para:first-of-type > .autopermalink,
-.theorem-like > .para:first-of-type > .autopermalink,
-.proof > .para:first-of-type > .autopermalink,
-.case > .para:first-of-type > .autopermalink,
 li > .para:first-of-type > .autopermalink,
 dd > .para:first-of-type > .autopermalink {
   display: none;
 }
-.axiom-like > .introduction > .para:first-of-type > .autopermalink,
-.example-like > .introduction > .para:first-of-type > .autopermalink,
-.exercise-like > .introduction > .para:first-of-type > .autopermalink,
-.solution-like > .introduction > .para:first-of-type > .autopermalink,
-.assemblage-like > .introduction > .para:first-of-type > .autopermalink,
-.definition-like > .introduction > .para:first-of-type > .autopermalink,
-.remark-like > .introduction > .para:first-of-type > .autopermalink,
-.project-like > .introduction > .para:first-of-type > .autopermalink,
-.openproblem-like > .introduction > .para:first-of-type > .autopermalink,
-.computation-like > .introduction > .para:first-of-type > .autopermalink,
-.theorem-like > .introduction > .para:first-of-type > .autopermalink,
-.proof > .introduction > .para:first-of-type > .autopermalink,
-.case > .introduction > .para:first-of-type > .autopermalink,
-li > .introduction > .para:first-of-type > .autopermalink,
-dd > .introduction > .para:first-of-type > .autopermalink {
+:is(.solution-like, .assemblage-like):not(:has(> .heading)) > .para:first-of-type > .autopermalink,
+:is(.solution-like, .assemblage-like):not(:has(> .heading)) > .introduction > .para:first-of-type > .autopermalink {
   display: none;
 }
 .ptx-content:has(.autopermalink:hover) .autopermalink {
