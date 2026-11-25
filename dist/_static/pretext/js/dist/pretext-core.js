@@ -1771,32 +1771,91 @@
       flattenIntroductionsIn(page);
       flattenSolutionsIn(page);
       flattenOversizedListsIn(page, contentHeight);
+      flattenOversizedBlocksIn(page, contentHeight);
     });
-    console.log("Moved all content before the first page and after the last page into the respective pages, and split nested tasks, introductions, solutions, and oversized lists for independent repagination.");
+    console.log("Moved all content before the first page and after the last page into the respective pages, and split nested tasks, introductions, solutions, and oversized lists and blocks for independent repagination.");
+    planPageGroups(margins);
   }
-  function createPrintoutPages(margins) {
-    console.log("*** Creating printout pages with margins:", margins);
-    const conservativePaperWidth = 794;
-    const conservativeContentHeight = 1056 - (margins.top + margins.bottom);
-    const conservativeContentWidth = conservativePaperWidth - (margins.left + margins.right);
+  function hasPageGroups() {
     const printout = getPrintout();
-    if (!printout) {
-      console.warn("No printout found, exiting createPrintoutPages.");
-      return;
+    return !!(printout && printout.querySelector(":scope > .onepage[data-pages]"));
+  }
+  function planPageGroups(margins) {
+    const printout = getPrintout();
+    if (!printout) return;
+    const contentHeight = conservativePageBox(margins).contentHeight;
+    const authoredPages = [...printout.querySelectorAll(":scope > .onepage[data-pages]")];
+    authoredPages.forEach((page) => {
+      const requested = page.dataset.pages;
+      const pageCount = requested === "multiple" ? void 0 : parseInt(requested, 10);
+      if (requested !== "multiple" && !(pageCount > 1)) {
+        return;
+      }
+      [...page.children].filter(isPageFurnitureEl).forEach((el2) => el2.remove());
+      const { blockList, footnoteChrome } = measureRows(printout, [...page.children], margins);
+      const pageBreaks = findPageBreaks(blockList, contentHeight, {
+        allowSqueeze: anySolutionShown(),
+        footnoteChrome,
+        pageCount
+      });
+      const groupPages = buildPages(blockList, pageBreaks);
+      if (groupPages.length === 0) {
+        return;
+      }
+      groupPages.forEach((groupPage, i) => {
+        if (i === 0) {
+          if (page.id) groupPage.id = page.id;
+          groupPage.dataset.pages = requested;
+        } else {
+          groupPage.classList.add("page-continuation");
+        }
+      });
+      page.replaceWith(...groupPages);
+      console.log("Laid out an authored page on", groupPages.length, "sheets; requested:", requested);
+    });
+  }
+  function foldPageGroups(margins) {
+    const printout = getPrintout();
+    if (!printout) return;
+    collapseSpilloverPages(margins);
+    const pages = [...printout.querySelectorAll(":scope > .onepage")];
+    for (let i = pages.length - 1; i >= 1; i--) {
+      const page = pages[i];
+      if (!page.classList.contains("page-continuation")) continue;
+      const contentChildren = [...page.children].filter((c) => !isPageFurnitureEl(c));
+      appendPageContent(pages[i - 1], contentChildren);
+      page.remove();
     }
+  }
+  function replanPageGroups(margins) {
+    foldPageGroups(margins);
+    planPageGroups(margins);
+    getPrintout().querySelectorAll(":scope > .onepage").forEach((page) => {
+      [...page.children].filter(isPageFurnitureEl).forEach((el2) => el2.remove());
+    });
+    addHeadersAndFootersToPrintout();
+  }
+  function conservativePageBox(margins) {
+    return {
+      paperWidth: 794,
+      // A4 is narrower than Letter's 816
+      contentHeight: 1056 - (margins.top + margins.bottom)
+      // in pixels
+    };
+  }
+  function measureRows(printout, rows, margins) {
+    const { paperWidth: conservativePaperWidth, contentHeight: conservativeContentHeight } = conservativePageBox(margins);
     printout.style.width = conservativePaperWidth + "px";
     setInitialWorkspaceHeights(printout);
-    flattenTasksIn(printout);
-    flattenIntroductionsIn(printout);
-    flattenSolutionsIn(printout);
-    let rows = [...printout.children];
     const measuringPage = document.createElement("section");
     measuringPage.classList.add("onepage");
     measuringPage.style.width = conservativePaperWidth + "px";
     measuringPage.style.height = "auto";
     printout.appendChild(measuringPage);
     rows.forEach((row) => measuringPage.appendChild(row));
-    if (flattenOversizedListsIn(measuringPage, conservativeContentHeight)) {
+    const listsSplit = flattenOversizedListsIn(measuringPage, conservativeContentHeight);
+    const blocksSplit = flattenOversizedBlocksIn(measuringPage, conservativeContentHeight);
+    if (listsSplit || blocksSplit) {
       rows = [...measuringPage.children];
     }
     const footnoteMetrics = measureFootnotes(rows, measuringPage);
@@ -1841,30 +1900,49 @@
         footnoteHeight: footnoteMetrics.heights.get(row) || 0
       });
     }
-    rows.forEach((row) => printout.appendChild(row));
     measuringPage.remove();
-    const pageBreaks = findPageBreaks(blockList, conservativeContentHeight, {
-      allowSqueeze: anySolutionShown(),
-      footnoteChrome: footnoteMetrics.chrome
-    });
     printout.style.width = "";
+    return { blockList, footnoteChrome: footnoteMetrics.chrome };
+  }
+  function buildPages(blockList, pageBreaks) {
+    const pages = [];
     for (let i = 0; i < pageBreaks.length; i++) {
       const pageDiv = document.createElement("section");
       pageDiv.classList.add("onepage");
-      if (i === 0) {
-        pageDiv.classList.add("firstpage");
-      }
-      if (i === pageBreaks.length - 1) {
-        pageDiv.classList.add("lastpage");
-      }
       const start = pageBreaks[i - 1] || 0;
       const end = pageBreaks[i];
       for (let j = start; j < end; j++) {
-        const row = blockList[j].elem;
-        pageDiv.appendChild(row);
+        pageDiv.appendChild(blockList[j].elem);
+      }
+      pages.push(pageDiv);
+    }
+    return pages;
+  }
+  function createPrintoutPages(margins) {
+    console.log("*** Creating printout pages with margins:", margins);
+    const printout = getPrintout();
+    if (!printout) {
+      console.warn("No printout found, exiting createPrintoutPages.");
+      return;
+    }
+    flattenTasksIn(printout);
+    flattenIntroductionsIn(printout);
+    flattenSolutionsIn(printout);
+    const { blockList, footnoteChrome } = measureRows(printout, [...printout.children], margins);
+    const pageBreaks = findPageBreaks(blockList, conservativePageBox(margins).contentHeight, {
+      allowSqueeze: anySolutionShown(),
+      footnoteChrome
+    });
+    const pages = buildPages(blockList, pageBreaks);
+    pages.forEach((pageDiv, i) => {
+      if (i === 0) {
+        pageDiv.classList.add("firstpage");
+      }
+      if (i === pages.length - 1) {
+        pageDiv.classList.add("lastpage");
       }
       printout.appendChild(pageDiv);
-    }
+    });
     for (const child of [...printout.children]) {
       if (!child.classList.contains("onepage")) {
         console.log("Removing old child not in a page:", child);
@@ -2104,6 +2182,166 @@
       for (let i = lists.length - 1; i >= 0; i--) {
         hoistListOut(container, child, lists[i]);
       }
+      split = true;
+    }
+    return split;
+  }
+  var SPLITTABLE_BLOCK_SELECTOR = "article, .born-hidden-knowl, .born-hidden-knowl > div, .solution-like, .knowl__content, .para.logical, ol, ul, dl";
+  function isSplittableBlock(element) {
+    return element.matches(SPLITTABLE_BLOCK_SELECTOR) && !element.closest(".sidebyside") && ![...element.classList].some((className) => /^cols\d+$/.test(className)) && ![...element.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "");
+  }
+  function getUnsqueezableHeight(element) {
+    return getElementTotalHeight(element) - getElemSqueezableHeight(element);
+  }
+  function measureAsShown(row, measure) {
+    const solutionTypes = ".hint, .answer, .solution";
+    const hidden = row.matches(solutionTypes) ? [row, ...row.querySelectorAll(solutionTypes)].filter((element) => element.classList.contains("hidden")) : [];
+    hidden.forEach((element) => element.classList.remove("hidden"));
+    try {
+      return measure();
+    } finally {
+      hidden.forEach((element) => element.classList.add("hidden"));
+    }
+  }
+  function blockUnitsIn(element, pageHeight) {
+    const units = [];
+    for (const child of element.children) {
+      if (getUnsqueezableHeight(child) > pageHeight && isSplittableBlock(child)) {
+        units.push(...blockUnitsIn(child, pageHeight));
+      } else {
+        units.push(child);
+      }
+    }
+    return units;
+  }
+  function isHeading(element) {
+    return /^H[1-6]$/.test(element.tagName) || element.classList.contains("heading");
+  }
+  function blockPiecesFrom(units) {
+    const pieces = [];
+    let leading = [];
+    for (const unit of units) {
+      const invisible = unit.offsetHeight === 0;
+      if (isHeading(unit) || invisible && (pieces.length === 0 || leading.length > 0)) {
+        leading.push(unit);
+      } else if ((invisible || isWorkspaceRow(unit) || unit.tagName === "DD") && pieces.length > 0 && leading.length === 0) {
+        pieces[pieces.length - 1].push(unit);
+      } else {
+        pieces.push([...leading, unit]);
+        leading = [];
+      }
+    }
+    if (leading.length > 0) {
+      if (pieces.length > 0) {
+        pieces[pieces.length - 1].push(...leading);
+      } else {
+        pieces.push(leading);
+      }
+    }
+    return pieces;
+  }
+  function partialCopyOf(element) {
+    const copy = element.cloneNode(false);
+    copy.removeAttribute("id");
+    delete copy.dataset.blockGroup;
+    return copy;
+  }
+  function hoistBlockPiecesOut(container, row, pieces) {
+    row.classList.add("split-block");
+    const itemNumbers = /* @__PURE__ */ new Map();
+    const orderedLists = [...row.querySelectorAll("ol")];
+    if (row.tagName === "OL") {
+      orderedLists.push(row);
+    }
+    for (const list of orderedLists) {
+      let itemNumber = parseInt(list.getAttribute("start"), 10) || 1;
+      for (const item of list.children) {
+        if (item.tagName === "LI") {
+          itemNumbers.set(item, itemNumber++);
+        }
+      }
+    }
+    const authoredMargins = /* @__PURE__ */ new Map();
+    for (const unit of pieces.flat()) {
+      const style = getComputedStyle(unit);
+      authoredMargins.set(unit, { top: style.marginTop, bottom: style.marginBottom });
+    }
+    const emptied = /* @__PURE__ */ new Set();
+    const lastPartOf = /* @__PURE__ */ new Map();
+    const firstCopyOf = /* @__PURE__ */ new Map();
+    const continuationOf = (element) => {
+      const previousPart = lastPartOf.get(element) || element;
+      const copy = partialCopyOf(previousPart);
+      previousPart.style.marginBottom = "0";
+      previousPart.style.paddingBottom = "0";
+      copy.style.marginTop = "0";
+      copy.style.paddingTop = "0";
+      lastPartOf.set(element, copy);
+      if (!firstCopyOf.has(element)) {
+        firstCopyOf.set(element, copy);
+      }
+      return copy;
+    };
+    let anchor = row;
+    for (const piece of pieces.slice(1)) {
+      const copies = /* @__PURE__ */ new Map();
+      const continuation = continuationOf(row);
+      continuation.classList.add("split-continuation");
+      copies.set(row, continuation);
+      const copyOf = (element) => {
+        if (!copies.has(element)) {
+          const copy = continuationOf(element);
+          copyOf(element.parentElement).appendChild(copy);
+          copies.set(element, copy);
+        }
+        return copies.get(element);
+      };
+      for (const unit of piece) {
+        const parent = unit.parentElement;
+        copyOf(parent).appendChild(unit);
+        emptied.add(parent);
+      }
+      for (const copy of copies.values()) {
+        const firstItem = copy.firstElementChild;
+        if (copy.tagName === "OL" && firstItem && itemNumbers.has(firstItem)) {
+          copy.setAttribute("start", String(itemNumbers.get(firstItem)));
+        }
+      }
+      container.insertBefore(continuation, anchor.nextSibling);
+      anchor = continuation;
+    }
+    for (const element of emptied) {
+      let node = element;
+      while (node && node !== row && node.parentElement && node.children.length === 0 && node.textContent.trim() === "") {
+        const parent = node.parentElement;
+        node.remove();
+        if (firstCopyOf.has(node)) {
+          firstCopyOf.get(node).style.marginTop = node.style.marginTop;
+          firstCopyOf.get(node).style.paddingTop = node.style.paddingTop;
+        }
+        node = parent;
+      }
+    }
+    for (const [unit, authored] of authoredMargins) {
+      const style = getComputedStyle(unit);
+      if (style.marginTop !== authored.top) {
+        unit.style.marginTop = authored.top;
+      }
+      if (style.marginBottom !== authored.bottom) {
+        unit.style.marginBottom = authored.bottom;
+      }
+    }
+  }
+  function flattenOversizedBlocksIn(container, pageHeight) {
+    let split = false;
+    for (const child of [...container.children]) {
+      if (!isSplittableBlock(child)) continue;
+      const pieces = measureAsShown(child, () => {
+        if (getUnsqueezableHeight(child) <= pageHeight) return [];
+        return blockPiecesFrom(blockUnitsIn(child, pageHeight));
+      });
+      if (pieces.length < 2) continue;
+      hoistBlockPiecesOut(container, child, pieces);
       split = true;
     }
     return split;
@@ -2415,73 +2653,135 @@
     }
     return SQUEEZE_COST_SCALE * squeeze ** 2 + groupPenalty;
   }
-  function findPageBreaks(rows, pageHeight, { allowSqueeze = false, footnoteChrome = 0 } = {}) {
+  function findPageBreaks(rows, pageHeight, { allowSqueeze = false, footnoteChrome = 0, pageCount } = {}) {
     console.log("*** Finding page breaks for", rows.length, "rows with page height:", pageHeight);
+    const options = { allowSqueeze, footnoteChrome };
+    if (!pageCount) {
+      return planPages(rows, pageHeight, options).pageBreaks;
+    }
+    if (pageCount <= rows.length) {
+      const exact = planPages(rows, pageHeight, { ...options, pageCount });
+      if (exact.feasible) {
+        return exact.pageBreaks;
+      }
+    }
+    return fixedPageCountFallback(rows, pageHeight, pageCount, options);
+  }
+  function fixedPageCountFallback(rows, pageHeight, pageCount, options) {
+    const squeezed = { ...options, allowSqueeze: true };
+    let plan = { feasible: false };
+    for (let count = Math.min(pageCount, rows.length); !plan.feasible && count >= 1; count--) {
+      if (count < pageCount) {
+        plan = planPages(rows, pageHeight, { ...options, pageCount: count });
+      }
+      if (!plan.feasible) {
+        plan = planPages(rows, pageHeight, { ...squeezed, pageCount: count });
+      }
+    }
+    if (!plan.feasible) {
+      plan = planPages(rows, pageHeight, options);
+    }
+    if (plan.pageBreaks.length === pageCount) {
+      console.log("A page only fits on", pageCount, "sheets with its writing space squeezed.");
+    } else {
+      console.warn("A page cannot be laid out on exactly", pageCount, "sheets; using", plan.pageBreaks.length, "instead.");
+    }
+    return plan.pageBreaks;
+  }
+  function planPages(rows, pageHeight, { allowSqueeze = false, footnoteChrome = 0, pageCount } = {}) {
     let pageBreaks = [];
-    let minCost = Array(rows.length + 1).fill(Infinity);
-    minCost[rows.length] = 0;
-    let nextPageBreak = Array(rows.length).fill(-1);
     const opensWithWorkspace = Array(rows.length + 1).fill(false);
     for (let k = rows.length - 1; k >= 0; k--) {
       opensWithWorkspace[k] = rows[k].hidden ? opensWithWorkspace[k + 1] : rows[k].isWorkspace;
     }
+    const opensWithNothing = Array(rows.length + 1).fill(false);
+    for (let k = rows.length - 1; k >= 0; k--) {
+      opensWithNothing[k] = rows[k].hidden && (k === rows.length - 1 || opensWithNothing[k + 1]);
+    }
+    const illegalStart = (k) => opensWithWorkspace[k] || opensWithNothing[k];
     const nextLegalStart = (i) => {
       let k = i + 1;
-      while (k < rows.length && opensWithWorkspace[k]) k++;
+      while (k < rows.length && illegalStart(k)) k++;
       return k;
     };
-    for (let i = rows.length - 1; i >= 0; i--) {
-      let cumulativeHeight = 0;
-      let cumulativeWorkspaceHeight = 0;
-      let cumulativeSqueezableHeight = 0;
-      let cumulativeFootnoteHeight = 0;
-      let tallestRow = 0;
-      for (let j = i; j < rows.length; j++) {
-        cumulativeHeight += rows[j].height;
-        cumulativeWorkspaceHeight += rows[j].workspaceHeight;
-        cumulativeSqueezableHeight += rows[j].squeezableHeight;
-        cumulativeFootnoteHeight += rows[j].footnoteHeight || 0;
-        const footnotesHeight = cumulativeFootnoteHeight > 0 ? cumulativeFootnoteHeight + footnoteChrome : 0;
-        const rowWithNotes = rows[j].footnoteHeight ? rows[j].height + rows[j].footnoteHeight + footnoteChrome : rows[j].height;
-        tallestRow = Math.max(tallestRow, rowWithNotes);
-        const next = rows[j + 1];
-        const thisPage = pageCost({
-          pageHeight,
-          naturalHeight: cumulativeHeight + footnotesHeight,
-          workspaceHeight: cumulativeWorkspaceHeight,
-          squeezableHeight: cumulativeSqueezableHeight,
-          splitsGroup: !!(next && rows[j].group && rows[j].group === next.group),
-          allowSqueeze,
-          squeezeIsForced: tallestRow > pageHeight,
-          isLastPage: j === rows.length - 1
-        });
-        if (thisPage === Infinity) {
-          if (j === i) {
-            console.log("Row", i, "exceeds page height by itself, setting as its own page.");
-            minCost[i] = 0;
-            nextPageBreak[i] = nextLegalStart(i);
+    const fillLayer = (minCost2, nextPageBreak2, restCost) => {
+      for (let i = rows.length - 1; i >= 0; i--) {
+        let cumulativeHeight = 0;
+        let cumulativeWorkspaceHeight = 0;
+        let cumulativeSqueezableHeight = 0;
+        let cumulativeFootnoteHeight = 0;
+        let tallestRow = 0;
+        for (let j = i; j < rows.length; j++) {
+          cumulativeHeight += rows[j].height;
+          cumulativeWorkspaceHeight += rows[j].workspaceHeight;
+          cumulativeSqueezableHeight += rows[j].squeezableHeight;
+          cumulativeFootnoteHeight += rows[j].footnoteHeight || 0;
+          const footnotesHeight = cumulativeFootnoteHeight > 0 ? cumulativeFootnoteHeight + footnoteChrome : 0;
+          const rowWithNotes = rows[j].footnoteHeight ? rows[j].height + rows[j].footnoteHeight + footnoteChrome : rows[j].height;
+          tallestRow = Math.max(tallestRow, rowWithNotes);
+          const next = rows[j + 1];
+          const thisPage = pageCost({
+            pageHeight,
+            naturalHeight: cumulativeHeight + footnotesHeight,
+            workspaceHeight: cumulativeWorkspaceHeight,
+            squeezableHeight: cumulativeSqueezableHeight,
+            splitsGroup: !!(next && rows[j].group && rows[j].group === next.group),
+            allowSqueeze,
+            squeezeIsForced: tallestRow > pageHeight,
+            isLastPage: j === rows.length - 1
+          });
+          if (thisPage === Infinity) {
+            if (j === i) {
+              console.log("Row", i, "exceeds page height by itself, setting as its own page.");
+              nextPageBreak2[i] = nextLegalStart(i);
+              minCost2[i] = pageCount ? restCost[nextPageBreak2[i]] : 0;
+            }
+            break;
           }
-          break;
+          if (illegalStart(j + 1)) continue;
+          const cost = thisPage + restCost[j + 1];
+          if (cost < minCost2[i]) {
+            minCost2[i] = cost;
+            nextPageBreak2[i] = j + 1;
+          }
         }
-        if (opensWithWorkspace[j + 1]) continue;
-        const cost = thisPage + minCost[j + 1];
-        if (cost < minCost[i]) {
-          minCost[i] = cost;
-          nextPageBreak[i] = j + 1;
+        if (nextPageBreak2[i] === -1) {
+          const end = nextLegalStart(i);
+          nextPageBreak2[i] = end;
+          minCost2[i] = restCost[end];
         }
       }
-      if (nextPageBreak[i] === -1) {
-        const end = nextLegalStart(i);
-        nextPageBreak[i] = end;
-        minCost[i] = minCost[end];
+    };
+    if (pageCount) {
+      const noPages = Array(rows.length + 1).fill(Infinity);
+      noPages[rows.length] = 0;
+      const costs = [noPages];
+      const breaks = [null];
+      for (let p = 1; p <= pageCount; p++) {
+        costs.push(Array(rows.length + 1).fill(Infinity));
+        breaks.push(Array(rows.length).fill(-1));
+        fillLayer(costs[p], breaks[p], costs[p - 1]);
       }
+      if (rows.length === 0 || costs[pageCount][0] === Infinity) {
+        return { pageBreaks, feasible: false };
+      }
+      let nextPage2 = 0;
+      for (let p = pageCount; p >= 1; p--) {
+        nextPage2 = breaks[p][nextPage2];
+        pageBreaks.push(nextPage2);
+      }
+      return { pageBreaks, feasible: true };
     }
+    let minCost = Array(rows.length + 1).fill(Infinity);
+    minCost[rows.length] = 0;
+    let nextPageBreak = Array(rows.length).fill(-1);
+    fillLayer(minCost, nextPageBreak, minCost);
     let nextPage = 0;
     while (nextPage < rows.length) {
       pageBreaks.push(nextPageBreak[nextPage]);
       nextPage = nextPageBreak[nextPage];
     }
-    return pageBreaks;
+    return { pageBreaks, feasible: true };
   }
   function setPageGeometryCSS({ paperSize, margins }) {
     console.log("*** Setting page geometry CSS for paper size:", paperSize, "with margins:", margins);
@@ -2905,6 +3205,13 @@
       }
       if (hasAuthoredPages) {
         adjustPrintoutPages(margins);
+        if (hasPageGroups()) {
+          pendingSettle = (async () => {
+            await new Promise((r) => setTimeout(r, 300));
+            replanPageGroups(margins);
+            adjustWorkspaceOrRepaginate({ paperSize, margins, fullRecompute: false });
+          })();
+        }
       } else {
         createPrintoutPages(margins);
         pendingSettle = (async () => {
